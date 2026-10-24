@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FF Tournament</title>
+<style>
+:root{--bg:#101116;--panel:#1d1f28;--orange:#ff6b22;--muted:#b0b4c2}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:#fff;font:16px system-ui,Arial}
+header{padding:22px 18px 12px;background:linear-gradient(135deg,#24202a,#111218)}
+h1{margin:0;color:var(--orange);font-size:23px}small,.muted{color:var(--muted)}
+main{padding:16px;max-width:680px;margin:auto}.card{background:var(--panel);padding:16px;border-radius:18px;margin:12px 0}
+button{border:0;border-radius:13px;padding:12px 14px;background:var(--orange);color:white;font-weight:700;font-size:14px;cursor:pointer}
+button.secondary{background:#343643}input{display:block;width:100%;padding:13px;border:1px solid #444653;border-radius:12px;background:#181920;color:white;margin:10px 0 14px;font-size:16px}
+nav{display:flex;gap:6px;position:sticky;bottom:0;background:#101116;padding:10px}nav button{flex:1;padding:11px 3px;font-size:12px}
+.hidden{display:none}.pill{color:var(--orange);font-weight:700}.row{display:flex;gap:8px;flex-wrap:wrap}.row button{flex:1}
+</style>
+</head>
+<body>
+<header><h1>🔥 FF TOURNAMENT</h1><small>FREE ENTRY • Solo • Duo • Squad</small></header>
+<main>
+<section id="login" class="card">
+<h2>Welcome, Player!</h2><p class="muted">Demo login — apna player name likho.</p>
+<input id="playerName" placeholder="Player name" maxlength="24">
+<button onclick="login()">Enter Tournaments</button>
+</section>
+<section id="app" class="hidden">
+<div class="card"><b id="welcome"></b><p class="muted">Free entry only. Fair play karo!</p></div>
+<div id="tournaments"></div>
+<div id="matches" class="hidden"></div>
+<div id="leaderboard" class="hidden"></div>
+</section>
+</main>
+<nav id="nav" class="hidden">
+<button onclick="showTab('tournaments')">Tournaments</button>
+<button onclick="showTab('matches')">My Matches</button>
+<button onclick="showTab('leaderboard')">Leaderboard</button>
+</nav>
+<script>
+const ts=[
+{id:'solo',title:'Morning Rush',mode:'Solo',time:'Today • 5:00 PM',slots:48,room:'DEMO-SOLO-101',pass:'FREE123'},
+{id:'duo',title:'Duo Clash',mode:'Duo',time:'Today • 6:30 PM',slots:24,room:'DEMO-DUO-202',pass:'DUO456'},
+{id:'squad',title:'Squad Showdown',mode:'Squad',time:'Tomorrow • 4:00 PM',slots:12,room:'DEMO-SQUAD-303',pass:'TEAM789'}];
+let player=localStorage.getItem('ff_player')||'', joined=JSON.parse(localStorage.getItem('ff_joined')||'[]');
+function login(){let n=document.getElementById('playerName').value.trim();if(n.length<2){alert('Kam se kam 2 letters likho');return}player=n;localStorage.setItem('ff_player',n);boot()}
+function boot(){document.getElementById('login').classList.add('hidden');document.getElementById('app').classList.remove('hidden');document.getElementById('nav').classList.remove('hidden');document.getElementById('welcome').textContent='👤 Hi, '+player;renderTournaments();showTab('tournaments')}
+function renderTournaments(){let el=document.getElementById('tournaments');el.innerHTML='<h2>Available tournaments</h2><p class="muted">Tournament select karo aur free mein join karo.</p>';ts.forEach(t=>{let j=joined.includes(t.id);el.insertAdjacentHTML('beforeend',`<article class="card"><h3>${t.title}</h3><p class="pill">${t.mode} MODE • FREE ENTRY</p><p class="muted">🕒 ${t.time}</p><p class="muted">Slots: ${j?'Joined':t.slots+' available'}</p><button onclick="join('${t.id}')">${j?'Joined ✓ • View room':'Join Tournament'}</button></article>`)})}
+function join(id){if(!joined.includes(id)){joined.push(id);localStorage.setItem('ff_joined',JSON.stringify(joined))}let t=ts.find(x=>x.id===id);alert(t.title+'\\nRoom ID: '+t.room+'\\nPassword: '+t.pass+'\\n\\nDEMO DETAILS ONLY — real match se pehle organizer se details confirm karo.');renderTournaments()}
+function showTab(tab){['tournaments','matches','leaderboard'].forEach(x=>{document.getElementById(x).classList.toggle('hidden',x!==tab)});if(tab==='matches')renderMatches();if(tab==='leaderboard')renderLeaderboard()}
+function renderMatches(){let el=document.getElementById('matches');el.innerHTML='<h2>My Matches</h2>';let mine=ts.filter(t=>joined.includes(t.id));if(!mine.length)el.innerHTML+='<p class="muted">Abhi koi tournament join nahi kiya.</p>';mine.forEach(t=>el.insertAdjacentHTML('beforeend',`<article class="card"><h3>${t.title} • ${t.mode}</h3><p class="muted">${t.time}</p><div class="row"><button onclick="join('${t.id}')">Room details</button><button class="secondary" onclick="leave('${t.id}')">Leave</button></div></article>`))}
+function leave(id){joined=joined.filter(x=>x!==id);localStorage.setItem('ff_joined',JSON.stringify(joined));renderMatches();renderTournaments()}
+function renderLeaderboard(){document.getElementById('leaderboard').innerHTML='<h2>🏆 Leaderboard</h2><p class="muted">Sample scores — demo data</p>'+['ShadowX — 120 points','RushKing — 105 points','NightWolf — 98 points','FF_Rider — 87 points','BlazeYT — 75 points'].map((x,i)=>`<div class="card"><b>${i+1}. ${x}</b></div>`).join('')+'<p class="muted">Real leaderboard ke liye online database aur admin scoring chahiye.</p>'}
+if(player)boot();
+</script>
+</body></html>
